@@ -1,5 +1,5 @@
 import time
-import matplotlib
+import matplotlib as plt
 
 class FrontEnd():
     def __init__():
@@ -15,3 +15,4 @@ class FrontEnd():
             print(f"Step: {result[0]} Output: {result[1]} {settings[0]}: {result[1][0]} {settings[1]}: {result[1][1]}\nTime taken: {end_time - start_time}\n--------------------------------------------")
             return result
         return wrapper
+    

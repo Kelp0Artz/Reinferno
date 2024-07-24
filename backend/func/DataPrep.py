@@ -28,7 +28,6 @@ class DataPrep():
             flattened_list.append(input_values)
         return flattened_list
         
-   
     def control_shape_LT(self, obj, size, count=None):
         if count is None:
             count = []

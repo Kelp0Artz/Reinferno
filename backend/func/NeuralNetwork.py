@@ -2,19 +2,19 @@ import pandas as pd
 import math
 import numpy as np
 import time
+import sys
 
 from keras.datasets import mnist
 from decimal import Decimal
 np.set_printoptions(threshold=np.inf)
 
 
-class Input():
+class Input():      
     def __init__(self):
         self.input_values = np.empty((0,), dtype= np.float64)
         self.randomness_coefficient = None
-        self.input_shape_history = None
+        self.input_shape_history = None  #[INPUT, INPUT_SHAPE, MEAN, MAX, MIN, SCALING_FACTOR, SCALING_TYPE]
         self.input_data_shape = None
-        self.input_values = 'cicaj ma'####
         
     @staticmethod
     def rescaling_values(data,  SCALING_FACTOR=0):
@@ -28,11 +28,18 @@ class Input():
                 value = data[feature][0]
             self.input_values = np.append(self.input_values, value)  
 
+    def set_input_history(self, size):
+        for data in size:
+            if size >= size:
+                self.input_shape_history = True
+    
+
 class Output():
     def __init__(self):
         self.output = np.empty((0,), dtype = np.float64)
         self.output_data_shape = None
         self.output_shape_history = None
+        
     def set_ouput_shape(self, shape):
         pass
 
@@ -87,7 +94,7 @@ class Layer(Input, WeightsFunctions):
             cls.input_shape_history = True
             cls.randomness_coefficient = cls.XavierInitialization()
         layer = []
-        for neuron in range(hidden_layer_neurons):
+        for neuron in range(0, hidden_layer_neurons):
             if cls.neuron_count == 0: 
                 layer = [[cls.create_neuron()]]
             else:
@@ -96,9 +103,10 @@ class Layer(Input, WeightsFunctions):
         cls.neuron_count = 0
         return layer  
     
-class CostFunctions(DataPrep):
+class CostFunctions():
     def __init__(self):
         super().__init__()
+
     @staticmethod
     def MeanSquaredError(predicted_data, prediction_data):
         if len(predicted_data) == len(prediction_data):
@@ -110,6 +118,7 @@ class CostFunctions(DataPrep):
             return "Error"
         array = np.array(results, dtype=np.float64)
         return array
+    
     @staticmethod
     def EvalueatingCost(self, array):
         return self.find_average(array)
@@ -141,7 +150,7 @@ class Activacions():
 class AdditionalFunctions():
     def __init__(self):
         pass
-        
+
     @staticmethod
     def measure_runtime(func):
         def wrapper(*args, **kwargs):
@@ -151,7 +160,7 @@ class AdditionalFunctions():
             
         return wrapper
 
-class NeuronNetwork(Layer, AdditionalFunctions, FrontEnd):
+class NeuronNetwork(Layer, AdditionalFunctions):
     def __init__(self):
         super().__init__()
         self.neuron_count = 0
@@ -186,21 +195,81 @@ class NeuronNetwork(Layer, AdditionalFunctions, FrontEnd):
         
     def evaluate(self, X_data, Y_data):
         # [[weights, bias], settinggs, ]
-        return diagnose
-        
+        pass
+
     def add(self, func):
         if self.layers == None:
             self.layers = func
         else:
             self.layers.append(func)
         
-############################################################################################################################################################################
-model = NeuronNetwork()
+class LinearRegression(Input, Output):
+    def __init__(self):
+        self.slopes = None #[[m1, b1], ...]
+    
+    #### Somehow store values dataX, dataY
+    @staticmethod
+    def sumlist(data):
+        sum_value = 0
+        for value in data:
+            sum_value += value
+        return sum_value
+    
+    @staticmethod
+    def squaredlist(data):
+        squared_value = 0 
+        for value in data:
+            squared_value += value**2
+        return squared_value
 
-model.add(Layer.create_layer(model, 1, input_shape = 784))
-model.add(Layer.create_layer(model, 3))
-model.add(Layer.create_layer(model, 1))
-#print(len(model.layers[1][0][0][0]))
-#print(model.layers)
+    @staticmethod
+    def multiplylist(dataX, dataY):
+        if len(dataX) == len(dataY):
+            multiplied_value = 0 
+            for index in range(len(dataX)):
+                multiplied_value += dataX[index]*dataY[index]
+            return multiplied_value
+        else:
+            print('Error')
+            
+    def find_slope(self, dataX, dataY):
+        dataX = np.array(dataX)
+        print(dataX.shape)
+        if len(dataX.shape) == 1:
+            m_numerator = len(dataX) * self.multiplylist(dataX, dataY) - self.sumlist(dataX) * self.sumlist(dataY)
+            m_denominator = len(dataX) * self.squaredlist(dataX) - self.sumlist(dataX)**2
+            m = m_numerator/m_denominator
+            b_numerator = self.sumlist(dataY)- m*self.sumlist(dataX)
+            b = b_numerator/len(dataX)
+            self.slopes = [m, b]
+        else:
+            array = np.empty((0,), dtype = np.float64)
+            # add support for 3d data
+            if len(dataX.shape) == 2:
+                for value in range(0, dataX.shape[-1]):
+                    np.append(array, [dataX[:, value]])
+            print(array)
 
-model.fit(X_train, Y_train, 10)
+
+
+            
+
+    def fit(self, dataX, dataY):
+        self.slope = self.find_slope(dataX, dataY) #Error in the function
+        predicted_values = np.empty((0,), dtype = np.float64)
+        for index in range(0,len(dataX)):
+            np.append(predicted_values, dataX[index]*self.slope[0]+self.slope[1])
+        return predicted_values
+
+    def evaluate(self, dataX, dataY):
+        if self.slope == None:
+            return "Error"
+        
+    def predict(self, dataX):
+        if self.slope == None:
+            return "Error"
+        else:
+            predictions = np.empty((0,), dtype = np.float64)
+            for value in dataX:
+                predictions.append(value*self.slope[0]+self.slope[1])
+            return predictions
