@@ -85,22 +85,21 @@ class Layer(Input, WeightsFunctions):
         #if cls.settings[0] == 'XavierInitialization':
         #neuron = tuple([cls.random_weights(cls.input_values, cls.XavierInitialization(cls.input_shape_history, )), cls.random_bias(cls.XavierInitialization(cls.input_shape_history, ))])
         #if cls.settings[0] == 'HeInitialization':
-        return tuple([cls.random_weights(cls.input_data_shape), cls.random_bias()])
-    
+        if cls.layers != None:
+            return tuple([cls.random_weights(len(cls.layers[-1][0])), cls.random_bias()])
+        else:
+            return tuple([cls.random_weights(cls.input_data_shape), cls.random_bias()])
     @staticmethod
     def create_layer(cls, hidden_layer_neurons:int, input_shape:int = None):
         if cls.input_shape_history == None:
             cls.input_data_shape = input_shape
             cls.input_shape_history = True
             cls.randomness_coefficient = cls.XavierInitialization()
+        # MAKES A RANDOMNESS COEFECIENT DEPENDING ON INPUT SHAPE 
         layer = []
         for neuron in range(0, hidden_layer_neurons):
-            if cls.neuron_count == 0: 
-                layer = [[cls.create_neuron()]]
-            else:
-                layer.append(cls.create_neuron())
-            cls.neuron_count += 1
-        cls.neuron_count = 0
+            #if cls.layers == None:
+            layer.append(cls.create_neuron())
         return layer  
     
 class CostFunctions():
@@ -190,7 +189,7 @@ class NeuralNetwork(Layer, AdditionalFunctions):
         input_data = np.empty((0,))
         output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
-        self.forward_propagation(X_data)
+        
         return [10, [99, 0]]
         
     def evaluate(self, X_data, Y_data):
@@ -199,10 +198,10 @@ class NeuralNetwork(Layer, AdditionalFunctions):
 
     def add(self, func):
         if self.layers == None:
-            self.layers = func
+            self.layers = [func]
         else:
-            self.layers.append(func)
-        
+            self.layers.append([func])
+"""        
 class LinearRegression(Input, Output):
     def __init__(self):
         self.slopes = None #[[m1, b1], ...]
@@ -280,7 +279,7 @@ def linearRegression(dataX, dataY, learningRate):
         iteration += 1
     
     return slope, intercept, listOfSquaredResiduals
-"""
+
 # Sample data
 dataX = np.array([1, 2, 3, 4, 5])
 dataY = np.array([2, 3, 5, 7, 11])
@@ -292,9 +291,9 @@ slope, intercept, residuals = linearRegression(dataX, dataY, learningRate)
 print("Slope:", slope)
 print("Intercept:", intercept)
 print("Residuals:", residuals)
-"""
+
             
-"""
+
     def fit(self, dataX, dataY):
         self.slope = self.find_slope(dataX, dataY) #Error in the function
         predicted_values = np.empty((0,), dtype = np.float64)
