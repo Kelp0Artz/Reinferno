@@ -160,7 +160,7 @@ class AdditionalFunctions():
             
         return wrapper
 
-class NeuronNetwork(Layer, AdditionalFunctions):
+class NeuralNetwork(Layer, AdditionalFunctions):
     def __init__(self):
         super().__init__()
         self.neuron_count = 0
@@ -190,7 +190,7 @@ class NeuronNetwork(Layer, AdditionalFunctions):
         input_data = np.empty((0,))
         output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
-        
+        self.forward_propagation(X_data)
         return [10, [99, 0]]
         
     def evaluate(self, X_data, Y_data):
@@ -249,11 +249,52 @@ class LinearRegression(Input, Output):
                 for value in range(0, dataX.shape[-1]):
                     np.append(array, [dataX[:, value]])
             print(array)
+    import numpy as np
 
+def linearRegression(dataX, dataY, learningRate):
+    listOfSquaredResiduals = []
+    squaredResidual = float('inf')
+    slope = 1.0
+    intercept = 0.0
+    NUM_ITERATION = 1000
+    iteration = 0
 
+    def calculateSquaredResidual(dataX, dataY, slope, intercept):
+        residual = np.sum((dataY - (slope * dataX + intercept))**2)
+        return residual
 
+    while squaredResidual > 0.0001 and iteration < NUM_ITERATION:
+        # Calculate gradients
+        predictions = slope * dataX + intercept
+        intercept_gradient = -2 * np.sum(dataY - predictions)
+        slope_gradient = -2 * np.sum((dataY - predictions) * dataX)
+
+        # Update parameters
+        intercept -= learningRate * intercept_gradient
+        slope -= learningRate * slope_gradient
+
+        # Calculate and store squared residuals
+        squaredResidual = calculateSquaredResidual(dataX, dataY, slope, intercept)
+        listOfSquaredResiduals.append(squaredResidual)
+        
+        iteration += 1
+    
+    return slope, intercept, listOfSquaredResiduals
+"""
+# Sample data
+dataX = np.array([1, 2, 3, 4, 5])
+dataY = np.array([2, 3, 5, 7, 11])
+learningRate = 0.01
+
+# Perform linear regression
+slope, intercept, residuals = linearRegression(dataX, dataY, learningRate)
+
+print("Slope:", slope)
+print("Intercept:", intercept)
+print("Residuals:", residuals)
+"""
             
-
+"""
     def fit(self, dataX, dataY):
         self.slope = self.find_slope(dataX, dataY) #Error in the function
         predicted_values = np.empty((0,), dtype = np.float64)
@@ -273,3 +314,4 @@ class LinearRegression(Input, Output):
             for value in dataX:
                 predictions.append(value*self.slope[0]+self.slope[1])
             return predictions
+"""
