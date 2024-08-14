@@ -10,6 +10,9 @@ np.set_printoptions(threshold=np.inf)
 
 
 class Input():      
+    """
+    This class contain Inputs data and operations for processing input.
+    """
     def __init__(self):
         self.input_values = np.empty((0,), dtype= np.float64)
         self.randomness_coefficient = None
@@ -20,7 +23,18 @@ class Input():
     def rescaling_values(data,  SCALING_FACTOR=0):
         return data / np.float64(SCALING_FACTOR)
         
-    def set_input_values(self, data, SCALING_FACTOR = 0):
+    def set_input_values(self, data, SCALING_FACTOR = 0): 
+        """
+        With this function, you can set input data for training model.
+
+        PARAMETERS
+        ----------
+        data : array-like
+            Data. It can be a 0-dim array or multi-dim array of numpy type or python's basic list.
+
+        SCALING_FACTOR : 0-dim array
+            SCALING_FACTOR. It sets a scaling factor, that will process data.
+        """
         for feature in range(data.shape[1]): # for column in range(X_train.shape[1]):  
             if SCALING_FACTOR != 0 :    
                 value = self.rescaling_values(data[feature][0], SCALING_FACTOR)
@@ -36,15 +50,37 @@ class Input():
 
 class Output():
     def __init__(self):
-        self.output = np.empty((0,), dtype = np.float64)
+        self.output_values = np.empty((0,), dtype = np.float64)
         self.output_data_shape = None
         self.output_shape_history = None
-        
+    
+    def set_output_values(self, data, SCALING_FACTOR = 0): #MAKE A SCALING FACTOR
+        """
+        With this function, you can set output data for training model.
+
+        PARAMETERS
+        ----------
+        data : array-like
+            Data. It can be a 0-dim array or multi-dim array of numpy type or python's basic list.
+
+        SCALING_FACTOR : 0-dim array
+            SCALING_FACTOR. It sets a scaling factor, that will process data.
+        """
+        self.set_output_values = data
+
     def set_ouput_shape(self, shape):
         pass
 
 class ExceptionList(Exception):
-    pass
+    """
+    This class contain all custom Exceptions for Reinferno library.
+
+    EXAMPLES
+    --------
+    Such as: GYATT:>
+    """
+    def __init__(self):
+        super().__init__()
 
 class WeightsFunctions():
     def __init__(self):
@@ -61,20 +97,35 @@ class WeightsFunctions():
         else: return "Error"
 ###MAKE IT ADAPT WITH LAYERS
 
-class Layer(Input, WeightsFunctions):
+class Layer(Input, WeightsFunctions, Output):
+    """
+    PURPOSE
+    ------
+    Calls a Layer class.
+
+    Is it used for adding layers to the model, and has lot of functions for processing data in layers.
+
+    EXAMPLES
+    --------
+    First you need to create a model.
+    >>> model = NeuralNetwork() 
+    #Then add some Layers.
+    >>> model.add(Layer.create_layer(model, 128, input_shape = 10)) 
+    >>> model.add(Layer.create_layer(model, 3, activaion = "Softmax"))
+    """
     def __init__(self):
         super().__init__()
         self.weights = np.empty((0,), dtype=np.float64)
         self.biases = np.empty((0,), dtype=np.float64)
         self.layer = None
-        
+    """    
     def settings(self, *args, **kwargs):
         if kwargs:
             directory_looker(kwargs)
         def directory_looker(dictionary:dict):
             for index, obj in enumerate(dictionary):
                 print(index, obj)
-    
+    """
     def random_weights(self, input_values):
         return np.random.uniform(-(self.randomness_coefficient), self.randomness_coefficient, (input_values)).astype(np.float64) 
         
@@ -90,7 +141,28 @@ class Layer(Input, WeightsFunctions):
         else:
             return tuple([cls.random_weights(cls.input_data_shape), cls.random_bias()])
     @staticmethod
-    def create_layer(cls, hidden_layer_neurons:int, input_shape:int = None):
+    def create_layer(cls, hidden_layer_neurons:int, activation:str = "Sigmoid", input_shape:int = None):
+        """
+        INFO 
+        ----
+        With this function, you can create layers that can be used in your model.
+        It should be primary used with a NeuralNetwork.add() function.
+
+        PARAMETERS
+        ----------
+        hidden_layer_neurons : int
+            hidden_layer_neurons. It is used for creating hidden neurons inside a layer.
+
+        activation : str
+            activation. It sets a activation function, that will be used inside a layer.
+
+        input_shape : int
+            input_shape. It assign a input shape to a first layer inside the model.
+        
+        EXAMPLES
+        ---------
+        >>> 
+        """
         if cls.input_shape_history == None:
             cls.input_data_shape = input_shape
             cls.input_shape_history = True
@@ -100,7 +172,7 @@ class Layer(Input, WeightsFunctions):
         for neuron in range(0, hidden_layer_neurons):
             #if cls.layers == None:
             layer.append(cls.create_neuron())
-        return layer  
+        return [layer, activation]
     
 class CostFunctions():
     def __init__(self):
@@ -133,19 +205,67 @@ class CostFunctions():
 class Activacions():
     def __init_(self):
         self.act_type = {
-            'relu':self.Relu(),
-            'all_sigmoid':self.Sigmoid(),
+            'relu': self.Relu(),
+            'sigmoid': self.Sigmoid(),
+            'softmax': self.Sigmoid()
         }
+
     @staticmethod
-    def Relu(input_values:list):
+    def Relu(input_values):
+        """
+        The ReLU function returns the input value if it is greater than zero; otherwise, it returns zero.
+
+        Parameters
+        ----------
+        input_values : array_like
+            Input values. Can be a single number, a list, or a NumPy array.
+
+        Returns
+        -------
+        ndarray
+            An array where each element is the result of applying the ReLU function to the corresponding element in the input.
+        """
         relu_value = np.maximum(0, input_values)
         return relu_value
         
     @staticmethod
-    def Sigmoid(input_values:list):
+    def Sigmoid(input_values):
+        """
+        The Sigmoid function maps input values to a value between 0 and 1, using the logistic function.
+
+        Parameters
+        ----------
+        input_values : array_like
+            Input values. Can be a single number, a list, or a NumPy array.
+
+        Returns
+        -------
+        ndarray
+            An array where each element is the result of applying the Sigmoid function to the corresponding element in the input.
+        """
         output = 1 / (1 + np.exp(-(input_values)))
         return output 
 
+    @staticmethod
+    def Softmax(input_values):
+        """
+        The Softmax function converts a vector of raw scores into a probability distribution, where each value is in the range (0, 1) and the sum of all values is 1.
+
+        Parameters
+        ----------
+        input_values : array_like
+            Input values. A 1-D array.
+
+        Returns
+        -------
+        ndarray
+            An array where each element is the result of applying the Softmax function to the corresponding element in the input. The output values are normalized probabilities.
+        """
+        output = np.empty((0,), dtype=np.float64)
+        for value in input_values:
+            np.append(output, np.exp(value)/ np.exp(input_values))
+        return output
+    
 class AdditionalFunctions():
     def __init__(self):
         pass
@@ -156,29 +276,72 @@ class AdditionalFunctions():
             start_time = time.time()
             result = func(start_time)
             end_time = time.time()
-            
         return wrapper
 
-class NeuralNetwork(Layer, AdditionalFunctions):
+class Settings():
+    def __init__(self):
+        self.activation_opt = {
+            True: True
+        }
+        self.loss_type = None
+        self.loss_opt = {
+            True: True
+        }
+        self.accuracy_type = None
+        self.accuracy_opt = {
+            True: True
+        }
+        self.activation_type = None
+
+    def settings(self): #WORK ON THIS PLEASE
+        pass
+class NeuralNetwork(Layer, AdditionalFunctions, Settings):
+    """
+    PURPOSE
+    ------
+    Calls a Neural Network class.
+
+    EXAMPLES
+    --------
+    >>> model = NeuralNetwork()
+    >>> model.add(Layer.create_layer(model, 128, input_shape = 10)) 
+    >>> model.add(Layer.create_layer(model, 3, activaion = "Softmax"))
+    >>> model.fit(X_train, Y_train)
+    >>> model.predict(X_train)
+    """
     def __init__(self):
         super().__init__()
         self.neuron_count = 0
         self.layers = None
-        self.hidden_layer_neurons = 0 #Work
-        self.layers_count = 0
-        self.review_heavy = None #[perIteration[perLayer[weights, biases], settings]]
-        self.review_light = None #[perLayer[weights, biases], settings]
+        self.activation_layers = None
+        self.hidden_layer_neurons = 0 
+        self.review_heavy = None #[perLayer[weights, biases],[accuracy, settings, statistics]]
+        self.review_light = None #[perLayer[weights, biases], [accuracy]]
         
+    def save_model(self, file_path:str):
+        with open(file_path, 'w') as file:
+            for layer in self.layers:
+                file.write({layer})
+
+        """# Read the list back from the file
+        with open('list.txt', 'r') as file:
+            loaded_list = [line.strip() for line in file]"""
+        # [[weights, bias], settinggs, ]
+    def settings(self, activation_type, loss_type, accuracy_type):
+        pass
+        
+    
     def vector_multiply(self, input_values:list, layer:int, neuron):
         return np.dot(input_values, self.layers[layer][neuron][0]) + self.layers[layer][neuron][1]
       
     def forward_propagation(self, input_values):
         output = np.empty((0,), dtype=np.float64)
         for layer in range(len(self.layers)):
-            layer_output = []
-            for neuron in range(len(self.layers[layer])):
+            layer_output = np.empty((0,), dtype=np.float64)
+            for neuron in range(0, len(self.layers[layer])):
                 neuron_output = self.vector_multiply(input_values, layer, neuron)
-                layer_output.append(neuron_output)
+                np.append(layer_output, list(neuron_output))
+            print(layer_output)
             input_values = np.array(layer_output)  # Pass output of this layer as input to the next layer
             output = np.append(output, layer_output)
         return output
@@ -189,7 +352,7 @@ class NeuralNetwork(Layer, AdditionalFunctions):
         input_data = np.empty((0,))
         output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
-        
+        self.set_output_values(Y_data)
         return [10, [99, 0]]
         
     def evaluate(self, X_data, Y_data):
@@ -198,11 +361,12 @@ class NeuralNetwork(Layer, AdditionalFunctions):
 
     def add(self, func):
         if self.layers == None:
-            self.layers = [func]
+            self.layers = [func[0]]
+            self.activation_layers = [func[1]]
         else:
-            self.layers.append([func])
-"""        
-class LinearRegression(Input, Output):
+            self.layers.append([func[0]])
+            self.activation_layers.append(func[1])
+class linearRegression(Input, Output):
     def __init__(self):
         self.slopes = None #[[m1, b1], ...]
     
@@ -250,7 +414,19 @@ class LinearRegression(Input, Output):
             print(array)
     import numpy as np
 
-def linearRegression(dataX, dataY, learningRate):
+def LinearRegression(dataX, dataY, learningRate):
+    """
+    PURPOSE
+    ------
+    Class used for simple Linear Regression model training.
+
+    EXAMPLES
+    --------
+    >>> model = LinearRegression()
+    >>> model.fit(X_train, Y_train)
+    >>> model.predict(X_predict)
+    >>> weights_biases = model.save_model()
+    """
     listOfSquaredResiduals = []
     squaredResidual = float('inf')
     slope = 1.0
@@ -279,7 +455,7 @@ def linearRegression(dataX, dataY, learningRate):
         iteration += 1
     
     return slope, intercept, listOfSquaredResiduals
-
+"""
 # Sample data
 dataX = np.array([1, 2, 3, 4, 5])
 dataY = np.array([2, 3, 5, 7, 11])

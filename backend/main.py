@@ -63,13 +63,16 @@ Y_test = np.array(Y_test)
 X_train = X_train.reshape(X_train.shape[0], -1)
 X_test = X_test.reshape(X_test.shape[0], -1)
 
+print(X_train[0:1])
 # X_train[num_row, num_column]
 model = NeuralNetwork()
-model.set_input_values(X_train)
-model.add(Layer.create_layer(model, 2, input_shape = 10)) # Input_shape = 784
-model.add(Layer.create_layer(model, 1))
-model.add(Layer.create_layer(model, 1))
 
+model.add(Layer.create_layer(model, 2, input_shape = 784)) 
+model.add(Layer.create_layer(model, 1))
+model.add(Layer.create_layer(model, 10, activation = "Softmax")) 
+model.settings()
 model.fit(X_train, Y_train, num_batches= 10)
-#print(model.vector_multiply(X_train, 1, 0))
-#print(model.forward_propagation(X_train))
+print(model.activation_layers)
+#print(model.vector_multiply(X_train, 0, 0))
+#model.forward_propagation(X_train)
+#print(np.dot(np.array([1,2,3]), np.array([4,5,6])) + 5)
