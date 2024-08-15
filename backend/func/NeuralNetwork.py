@@ -14,7 +14,7 @@ class Input():
     This class contain Inputs data and operations for processing input.
     """
     def __init__(self):
-        self.input_values = np.empty((0,), dtype= np.float64)
+        self.input_values = np.empty((0), dtype= np.float64)
         self.randomness_coefficient = None
         self.input_shape_history = None  #[INPUT, INPUT_SHAPE, MEAN, MAX, MIN, SCALING_FACTOR, SCALING_TYPE]
         self.input_data_shape = None
@@ -263,7 +263,7 @@ class Activacions():
         """
         output = np.empty((0,), dtype=np.float64)
         for value in input_values:
-            np.append(output, np.exp(value)/ np.exp(input_values))
+            output = np.append(output, np.exp(value)/ np.exp(input_values))
         return output
     
 class AdditionalFunctions():
@@ -331,20 +331,45 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         pass
         
     
-    def vector_multiply(self, input_values:list, layer:int, neuron):
-        return np.dot(input_values, self.layers[layer][neuron][0]) + self.layers[layer][neuron][1]
+    def vector_multiply(self, input_values, neuron): #REWORK docstring and PURPOSE!!!
+        """
+        PURPOSE
+        ------
+        Function that can be used for multiplying matrices.
+
+        EXAMPLES
+        --------
+        >>> X = vector_multiply([1,2,3], [2,7,6], 10)
+        >>> print(X)
+        44
+        """
+        print("Neuron",neuron)
+        #return np.dot(input_values, neuron[0]) + neuron[1]
       
-    def forward_propagation(self, input_values):
-        output = np.empty((0,), dtype=np.float64)
+    def forward_propagation(self, input_values): #REWORK docstring
+        """
+        LAYERS []
+        NEURONS [][]
+        Weights [][][0]
+        """                               
+        OUTPUT = np.empty((0,))
+        for layer in range(0, len(self.layers)):
+            LAYER_OUTPUT = np.empty((0,))
+            for neuron in range(0, len(self.layers[layer])):
+                LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(input_values, self.layers[layer][neuron]))
+                print("Layer Output", LAYER_OUTPUT)
+            OUTPUT = np.append(OUTPUT, LAYER_OUTPUT)
+        print("Output", OUTPUT)
+        """output = np.empty((0,), dtype=np.float64)
         for layer in range(len(self.layers)):
             layer_output = np.empty((0,), dtype=np.float64)
             for neuron in range(0, len(self.layers[layer])):
                 neuron_output = self.vector_multiply(input_values, layer, neuron)
-                np.append(layer_output, list(neuron_output))
-            print(layer_output)
+                np.append(layer_output, [neuron_output])
+            print("OUTPUT", layer_output)
             input_values = np.array(layer_output)  # Pass output of this layer as input to the next layer
             output = np.append(output, layer_output)
-        return output
+        return output"""
 
         #return [10, [99, 0]] #delete
     #@FrontEnd.ShowBoard 
@@ -353,6 +378,7 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
         self.set_output_values(Y_data)
+        self.forward_propagation(X_data)
         return [10, [99, 0]]
         
     def evaluate(self, X_data, Y_data):
@@ -364,7 +390,7 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
             self.layers = [func[0]]
             self.activation_layers = [func[1]]
         else:
-            self.layers.append([func[0]])
+            self.layers.append(func[0])
             self.activation_layers.append(func[1])
 class linearRegression(Input, Output):
     def __init__(self):
@@ -410,7 +436,7 @@ class linearRegression(Input, Output):
             # add support for 3d data
             if len(dataX.shape) == 2:
                 for value in range(0, dataX.shape[-1]):
-                    np.append(array, [dataX[:, value]])
+                    array = np.append(array, [dataX[:, value]])
             print(array)
     import numpy as np
 
