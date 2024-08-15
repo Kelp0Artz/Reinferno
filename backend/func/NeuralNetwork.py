@@ -118,6 +118,7 @@ class Layer(Input, WeightsFunctions, Output):
         self.weights = np.empty((0,), dtype=np.float64)
         self.biases = np.empty((0,), dtype=np.float64)
         self.layer = None
+        self.layer_data_shape = None
     """    
     def settings(self, *args, **kwargs):
         if kwargs:
@@ -127,7 +128,7 @@ class Layer(Input, WeightsFunctions, Output):
                 print(index, obj)
     """
     def random_weights(self, input_values):
-        return np.random.uniform(-(self.randomness_coefficient), self.randomness_coefficient, (input_values)).astype(np.float64) 
+        return np.random.uniform(-(self.randomness_coefficient), self.randomness_coefficient, input_values).astype(np.float64) 
         
     def random_bias(self):
         return np.array(np.random.uniform(-(self.randomness_coefficient), self.randomness_coefficient)).astype(np.float64)
@@ -137,7 +138,7 @@ class Layer(Input, WeightsFunctions, Output):
         #neuron = tuple([cls.random_weights(cls.input_values, cls.XavierInitialization(cls.input_shape_history, )), cls.random_bias(cls.XavierInitialization(cls.input_shape_history, ))])
         #if cls.settings[0] == 'HeInitialization':
         if cls.layers != None:
-            return tuple([cls.random_weights(len(cls.layers[-1][0])), cls.random_bias()])
+            return tuple([cls.random_weights(cls.layer_data_shape), cls.random_bias()])
         else:
             return tuple([cls.random_weights(cls.input_data_shape), cls.random_bias()])
     @staticmethod
@@ -172,7 +173,9 @@ class Layer(Input, WeightsFunctions, Output):
         for neuron in range(0, hidden_layer_neurons):
             #if cls.layers == None:
             layer.append(cls.create_neuron())
+        cls.layer_data_shape = hidden_layer_neurons
         return [layer, activation]
+    
     
 class CostFunctions():
     def __init__(self):
