@@ -346,23 +346,28 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         >>> print(X)
         44
         """
-        print("Neuron",neuron)
-        #return np.dot(input_values, neuron[0]) + neuron[1]
+        #print("Neuron",neuron)
+        return np.dot(input_values, neuron[0]) + neuron[1]
       
     def forward_propagation(self, input_values): #REWORK docstring
         """
         LAYERS []
         NEURONS [][]
         Weights [][][0]
-        """                               
-        OUTPUT = np.empty((0,))
+        """           
+
+        data_history = None              
+        OUTPUT = []
         for layer in range(0, len(self.layers)):
             LAYER_OUTPUT = np.empty((0,))
             for neuron in range(0, len(self.layers[layer])):
-                LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(input_values, self.layers[layer][neuron]))
-                print("Layer Output", LAYER_OUTPUT)
-            OUTPUT = np.append(OUTPUT, LAYER_OUTPUT)
-        print("Output", OUTPUT)
+                if data_history == None:
+                    LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(input_values, self.layers[layer][neuron]))
+                else:
+                    LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(OUTPUT[-1], self.layers[layer][neuron])) 
+            data_history = True
+            OUTPUT.append([LAYER_OUTPUT])
+            
         """output = np.empty((0,), dtype=np.float64)
         for layer in range(len(self.layers)):
             layer_output = np.empty((0,), dtype=np.float64)
