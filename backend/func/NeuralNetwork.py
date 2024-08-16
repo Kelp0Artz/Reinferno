@@ -3,7 +3,7 @@ import math
 import numpy as np
 import time
 import sys
-
+import matplotlib
 from keras.datasets import mnist
 from decimal import Decimal
 np.set_printoptions(threshold=np.inf)
@@ -15,7 +15,6 @@ class Input():
     """
     def __init__(self):
         self.input_values = np.empty((0), dtype= np.float64)
-        self.randomness_coefficient = None
         self.input_shape_history = None  #[INPUT, INPUT_SHAPE, MEAN, MAX, MIN, SCALING_FACTOR, SCALING_TYPE]
         self.input_data_shape = None
         
@@ -47,7 +46,6 @@ class Input():
             if size >= size:
                 self.input_shape_history = True
     
-
 class Output():
     def __init__(self):
         self.output_values = np.empty((0,), dtype = np.float64)
@@ -70,20 +68,28 @@ class Output():
 
     def set_ouput_shape(self, shape):
         pass
-
+"""
 class ExceptionList(Exception):
-    """
+    
     This class contain all custom Exceptions for Reinferno library.
 
     EXAMPLES
     --------
     Such as: GYATT:>
+    
+    def __init__(self):
+        super().__init__()
+        pass
+"""
+class WeightsFunctions():
+    """
+    PURPOSE
+    ------
+    Class ussed for creating a Randomness Coefficient, that is used in creating weights and biases.
+
     """
     def __init__(self):
         super().__init__()
-
-class WeightsFunctions():
-    def __init__(self):
         self.randomness_coefficient = None
     
     def XavierInitialization(self):
@@ -97,7 +103,7 @@ class WeightsFunctions():
         else: return "Error"
 ###MAKE IT ADAPT WITH LAYERS
 
-class Layer(Input, WeightsFunctions, Output):
+class Layer(Input, Output, WeightsFunctions):
     """
     PURPOSE
     ------
@@ -105,6 +111,12 @@ class Layer(Input, WeightsFunctions, Output):
 
     Is it used for adding layers to the model, and has lot of functions for processing data in layers.
 
+    STRUCTURE OF LAYERS
+    -------------------
+    LAYERS [ ]\n
+    NEURONS [ ][ ]\n
+    Weights [ ][ ][0]\n
+    Bias [ ][ ][1]
     EXAMPLES
     --------
     First you need to create a model.
@@ -115,9 +127,6 @@ class Layer(Input, WeightsFunctions, Output):
     """
     def __init__(self):
         super().__init__()
-        self.weights = np.empty((0,), dtype=np.float64)
-        self.biases = np.empty((0,), dtype=np.float64)
-        self.layer = None
         self.layer_data_shape = None
     """    
     def settings(self, *args, **kwargs):
@@ -179,7 +188,7 @@ class Layer(Input, WeightsFunctions, Output):
     
 class CostFunctions():
     def __init__(self):
-        super().__init__()
+        pass
 
     @staticmethod
     def MeanSquaredError(predicted_data, prediction_data):
@@ -204,15 +213,55 @@ class CostFunctions():
     @staticmethod
     def BinaryCrossEntropyLoss(input_values):
         pass
+    
+class AdditionalFunctions():
+    def __init__(self):
+        pass
 
-class Activacions():
-    def __init_(self):
-        self.act_type = {
-            'relu': self.Relu(),
-            'sigmoid': self.Sigmoid(),
-            'softmax': self.Sigmoid()
+    @staticmethod
+    def measure_runtime(func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(start_time)
+            end_time = time.time()
+        return wrapper
+
+class Settings():
+    def __init__(self):
+        self.activation_opt = {
+            True: True
         }
+        self.loss_type = None
+        self.loss_opt = {
+            True: True
+        }
+        self.accuracy_type = None
+        self.accuracy_opt = {
+            True: True
+        }
+        self.activation_type = None
 
+    def settings(self): #WORK ON THIS PLEASE
+        pass
+
+class Activations():
+    def __init__(self): 
+        self.activations_type = {"sigmoid":self.Sigmoid, 
+                                 "relu":self.Relu, 
+                                 "softmax":self.Softmax
+                                }
+    def check_activation(self):
+        """
+        PURPOSE
+        -------
+        Function for checking if activations are spelled correctly.
+        """
+        for activation in self.activation_layers:
+            if activation in self.activations_type:
+                pass
+            else:
+                raise Exception("Cicina jedna")
+            
     @staticmethod
     def Relu(input_values):
         """
@@ -269,36 +318,7 @@ class Activacions():
             output = np.append(output, np.exp(value)/ np.exp(input_values))
         return output
     
-class AdditionalFunctions():
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def measure_runtime(func):
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(start_time)
-            end_time = time.time()
-        return wrapper
-
-class Settings():
-    def __init__(self):
-        self.activation_opt = {
-            True: True
-        }
-        self.loss_type = None
-        self.loss_opt = {
-            True: True
-        }
-        self.accuracy_type = None
-        self.accuracy_opt = {
-            True: True
-        }
-        self.activation_type = None
-
-    def settings(self): #WORK ON THIS PLEASE
-        pass
-class NeuralNetwork(Layer, AdditionalFunctions, Settings):
+class NeuralNetwork(Layer, AdditionalFunctions,  Settings, Activations):
     """
     PURPOSE
     ------
@@ -313,24 +333,20 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
     >>> model.predict(X_train)
     """
     def __init__(self):
+        Activations.__init__(self)
         super().__init__()
-        self.neuron_count = 0
         self.layers = None
         self.activation_layers = None
         self.hidden_layer_neurons = 0 
-        self.review_heavy = None #[perLayer[weights, biases],[accuracy, settings, statistics]]
-        self.review_light = None #[perLayer[weights, biases], [accuracy]]
+        self.review_heavy = None #[perLayer[weights, biases],[accuracy, settings, statistics]] WORK ON!!
+        self.review_light = None #[perLayer[weights, biases], [accuracy]] WORK ON!!
         
     def save_model(self, file_path:str):
         with open(file_path, 'w') as file:
             for layer in self.layers:
                 file.write({layer})
-
-        """# Read the list back from the file
-        with open('list.txt', 'r') as file:
-            loaded_list = [line.strip() for line in file]"""
         # [[weights, bias], settinggs, ]
-    def settings(self, activation_type, loss_type, accuracy_type):
+    def settings(self, activation_type=None, loss_type=None, accuracy_type=None): # WORK ON 
         pass
         
     
@@ -346,7 +362,6 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         >>> print(X)
         44
         """
-        #print("Neuron",neuron)
         return np.dot(input_values, neuron[0]) + neuron[1]
       
     def forward_propagation(self, input_values): #REWORK docstring
@@ -355,39 +370,30 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         NEURONS [][]
         Weights [][][0]
         """           
-
         data_history = None              
         OUTPUT = []
         for layer in range(0, len(self.layers)):
             LAYER_OUTPUT = np.empty((0,))
             for neuron in range(0, len(self.layers[layer])):
                 if data_history == None:
+                    compute_weighted_sum = self.vector_multiply(input_values, self.layers[layer][neuron])
+                    
                     LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(input_values, self.layers[layer][neuron]))
                 else:
                     LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(OUTPUT[-1], self.layers[layer][neuron])) 
             data_history = True
             OUTPUT.append([LAYER_OUTPUT])
-            
-        """output = np.empty((0,), dtype=np.float64)
-        for layer in range(len(self.layers)):
-            layer_output = np.empty((0,), dtype=np.float64)
-            for neuron in range(0, len(self.layers[layer])):
-                neuron_output = self.vector_multiply(input_values, layer, neuron)
-                np.append(layer_output, [neuron_output])
-            print("OUTPUT", layer_output)
-            input_values = np.array(layer_output)  # Pass output of this layer as input to the next layer
-            output = np.append(output, layer_output)
-        return output"""
-
-        #return [10, [99, 0]] #delete
+        return OUTPUT
+    
     #@FrontEnd.ShowBoard 
-    def fit(self, X_data, Y_data, num_batches, activision_type:str = None):
-        input_data = np.empty((0,))
+    def fit(self, X_data, Y_data, num_batches):
+        
         output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
         self.set_output_values(Y_data)
-        self.forward_propagation(X_data)
-        return [10, [99, 0]]
+        for example in X_data:
+            output_data = np.append(output_data, self.forward_propagation(example))
+        
         
     def evaluate(self, X_data, Y_data):
         # [[weights, bias], settinggs, ]
@@ -400,6 +406,7 @@ class NeuralNetwork(Layer, AdditionalFunctions, Settings):
         else:
             self.layers.append(func[0])
             self.activation_layers.append(func[1])
+        self.check_activation()
 class linearRegression(Input, Output):
     def __init__(self):
         self.slopes = None #[[m1, b1], ...]

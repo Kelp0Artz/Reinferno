@@ -1,8 +1,18 @@
+# Parent class
+class Parent:
+    def __init__(self):
+        self.name = "name"
+        self.age = 11
+    
+    
 
-import numpy as np
-list = [1,2,3,4,5,6,7,8,9]
-OUTPUT = np.empty((0,1))
-for a in list:
-    OUTPUT = np.append(OUTPUT, [[a]], axis= 0)
-print(OUTPUT)
+class Child(Parent):
+    def __init__(self):
+        # Automatically inherit and initialize 'name' and 'age'
+        super().__init__()
+        pass
+# Create an instance of Child
+child = Child()
 
+# Access inherited attributes
+print(child.name)

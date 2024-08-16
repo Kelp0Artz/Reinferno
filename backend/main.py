@@ -56,25 +56,17 @@ X_train = np.array(X_train)
 Y_train = np.array(Y_train)
 X_test = np.array(X_test)
 Y_test = np.array(Y_test)
-
-
-
-
 X_train = X_train.reshape(X_train.shape[0], -1)
 X_test = X_test.reshape(X_test.shape[0], -1)
 
 # X_train[num_row, num_column]
+
+
 model = NeuralNetwork()
-
-model.add(Layer.create_layer(model, 2, input_shape = 784)) 
-model.add(Layer.create_layer(model, 8))
-model.add(Layer.create_layer(model, 1))
-#print(model.layers[0])
-#print(model.layers[1][0][0])
-
-#print(np.shape(model.layers[0][0][0]))
-#model.settings()
-#model.fit(X_train, Y_train, num_batches= 10)
-#print(model.activation_layers)
-#print(model.vector_multiply(X_train[0], model.layers[0][0]))
-model.forward_propagation(X_train[0])
+model.add(Layer.create_layer(model, 2, input_shape = 784, activation="sigmoid")) 
+model.add(Layer.create_layer(model, 8, activation="sigmoid"))
+model.add(Layer.create_layer(model, 1, activation="sigmoid"))
+model.settings()
+print(model.forward_propagation(X_train[0]))
+#print(model.fit(X_train[0:10], Y_train, 1))
+#print(Activations.Sigmoid(1.245435))
