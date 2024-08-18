@@ -166,6 +166,7 @@ class WeightsFunctions():
     ------
     Class ussed for creating a Randomness Coefficient, that is used in creating weights and biases.
 
+    RANDOMNESS COEFFICIENT - 
     """
     def __init__(self):
         super().__init__()
@@ -345,7 +346,7 @@ class Settings(): #REMAKE DOCSTRING
             self.activation_type = self.accuracy_opt[accuracy_type.lower()]
             self.loss_type = self.loss_opt[loss_type.lower()]
             self.activation_type = self.accuracy_opt[activation_type.lower()]
-        except:
+        except: #CREATE CUSTOM EXCEPTIONS!!!
             pass
 
 class Activations():
@@ -440,8 +441,8 @@ class NeuralNetwork(Layer, CostFunctions, AdditionalFunctions,  Settings, Activa
         self.layers = None
         self.activation_layers = None
         self.hidden_layer_neurons = 0 
-        self.review_heavy = None #[perLayer[weights, biases],[accuracy, settings, statistics]] WORK ON!!
-        self.review_light = None #[perLayer[weights, biases], [accuracy]] WORK ON!!
+        #self.review = None #[perLayer[weights, biases],[accuracy, settings, statistics]] WORK ON!!
+        self.review = None #[perLayer[weights, biases], [accuracy]] WORK ON!!
         
     def save_model(self, file_path:str):
         with open(file_path, 'w') as file:
@@ -591,6 +592,7 @@ def LinearRegression(dataX, dataY, learningRate):
     --------
     >>> model = LinearRegression()
     >>> model.fit(X_train, Y_train)
+    >>> model.evaluate
     >>> model.predict(X_predict)
     >>> weights_biases = model.save_model()
     """
