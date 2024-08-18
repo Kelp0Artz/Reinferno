@@ -1,18 +1,6 @@
-# Parent class
-class Parent:
-    def __init__(self):
-        self.name = "name"
-        self.age = 11
-    
-    
+import numpy as np 
+list = [1,2,3,4,5]
+array = np.array([])
+arra2 = np.array(array)
 
-class Child(Parent):
-    def __init__(self):
-        # Automatically inherit and initialize 'name' and 'age'
-        super().__init__()
-        pass
-# Create an instance of Child
-child = Child()
-
-# Access inherited attributes
-print(child.name)
+print(array)

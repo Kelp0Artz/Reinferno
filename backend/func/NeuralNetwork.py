@@ -68,19 +68,23 @@ class Output():
 
     def set_ouput_shape(self, shape):
         pass
-"""
+
 class ExceptionList(Exception):
-    
+    """
     This class contain all custom Exceptions for Reinferno library.
 
     EXAMPLES
     --------
     Such as: GYATT:>
-    
+    """
     def __init__(self):
         super().__init__()
-        pass
-"""
+        pass 
+class InconsistentArrayError(ExceptionList):
+    def __init__(self, message="Inconsistent array"):
+        self.message = message
+        super().__init__(self.message)
+
 class WeightsFunctions():
     """
     PURPOSE
@@ -241,7 +245,7 @@ class Settings():
         }
         self.activation_type = None
 
-    def settings(self): #WORK ON THIS PLEASE
+    def settings(self, activation, loss, accuracy): #WORK ON THIS PLEASE
         pass
 
 class Activations():
@@ -313,12 +317,10 @@ class Activations():
         ndarray
             An array where each element is the result of applying the Softmax function to the corresponding element in the input. The output values are normalized probabilities.
         """
-        output = np.empty((0,), dtype=np.float64)
-        for value in input_values:
-            output = np.append(output, np.exp(value)/ np.exp(input_values))
-        return output
+        exp_values = np.exp(input_values - np.max(input_values))
+        return exp_values / np.sum(exp_values)
     
-class NeuralNetwork(Layer, AdditionalFunctions,  Settings, Activations):
+class NeuralNetwork(Layer, CostFunctions, AdditionalFunctions,  Settings, Activations):
     """
     PURPOSE
     ------
@@ -377,27 +379,53 @@ class NeuralNetwork(Layer, AdditionalFunctions,  Settings, Activations):
             for neuron in range(0, len(self.layers[layer])):
                 if data_history == None:
                     compute_weighted_sum = self.vector_multiply(input_values, self.layers[layer][neuron])
-                    
-                    LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(input_values, self.layers[layer][neuron]))
                 else:
-                    LAYER_OUTPUT = np.append(LAYER_OUTPUT, self.vector_multiply(OUTPUT[-1], self.layers[layer][neuron])) 
+                    compute_weighted_sum = self.vector_multiply(OUTPUT[-1], self.layers[layer][neuron])
+                LAYER_OUTPUT = np.append(LAYER_OUTPUT, compute_weighted_sum)
+            LAYER_OUTPUT = self.activations_type[self.activation_layers[layer]](LAYER_OUTPUT)
             data_history = True
             OUTPUT.append([LAYER_OUTPUT])
         return OUTPUT
     
     #@FrontEnd.ShowBoard 
     def fit(self, X_data, Y_data, num_batches):
-        
-        output_data = np.empty((0,))
         self.set_input_values(X_data, 255) #Rework add rescaling addaptivity
         self.set_output_values(Y_data)
         for example in X_data:
-            output_data = np.append(output_data, self.forward_propagation(example))
-        
+            output_data = self.forward_propagation(example)
+            output_data = output_data.append(self.MeanSquaredError(output_data[-1], Y_data))
         
     def evaluate(self, X_data, Y_data):
         # [[weights, bias], settinggs, ]
         pass
+
+    def predict(self, X_data):
+        """
+        PURPOSE
+        ------
+        Function that predicts output, thanks to pretrained model.
+
+        Parameters
+        ----------
+        X_data : array_like
+            Input values. Can be a single number, a list, or a NumPy array with multiple examples.
+
+        EXAMPLES
+        --------
+        
+        """
+        prediction = np.array([])
+        if not isinstance(X_data, np.ndarray):
+            try:
+                X_data = np.array(X_data)
+            except InconsistentArrayError as e:
+                print(f"{e}")
+        if len(X_data.shape) > 1:
+            for example in X_data:
+                prediction = np.append(prediction, self.forward_propagation(example)[-1])
+        else:
+            prediction = np.append(prediction, self.forward_propagation(X_data)[-1])
+        return prediction
 
     def add(self, func):
         if self.layers == None:
