@@ -262,8 +262,11 @@ class Layer(Input, Output, WeightsFunctions):
     
 class CostFunctions():
     def __init__(self):
-        pass
-
+        self.cost_functions = {
+            'mse': self.MeanSquaredError,
+            'CrossEntropyLoss': self.CrossEntropyLoss,
+            'BinaryCrossEntropyLoss': self.BinaryCrossEntropyLoss
+        }
     @staticmethod
     def MeanSquaredError(predicted_data, prediction_data):
         if len(predicted_data) == len(prediction_data):
@@ -537,8 +540,8 @@ class NeuralNetwork(Layer, CostFunctions, AdditionalFunctions,  Settings, Activa
 class linearRegression(Input, Output):
     def __init__(self):
         self.slopes = None #[[m1, b1], ...]
+
     
-    #### Somehow store values dataX, dataY
     @staticmethod
     def sumlist(data):
         sum_value = 0
@@ -580,7 +583,7 @@ class linearRegression(Input, Output):
                 for value in range(0, dataX.shape[-1]):
                     array = np.append(array, [dataX[:, value]])
             print(array)
-    import numpy as np
+    
 
 def LinearRegression(dataX, dataY, learningRate):
     """
