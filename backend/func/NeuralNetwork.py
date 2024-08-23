@@ -267,6 +267,8 @@ class CostFunctions():
             'CrossEntropyLoss': self.CrossEntropyLoss,
             'BinaryCrossEntropyLoss': self.BinaryCrossEntropyLoss
         }
+        self.cost_of_examples = np.empty((0,))
+
     @staticmethod
     def MeanSquaredError(predicted_data, prediction_data):
         if len(predicted_data) == len(prediction_data):
@@ -280,8 +282,13 @@ class CostFunctions():
         return array
     
     @staticmethod
-    def EvalueatingCost(self, array):
-        return self.find_average(array)
+    def EvalueatingCost(self, array = None):
+        if array == None:
+            self.cost_of_examples = self.find_average(self.cost_of_examples)
+        else:
+            array = self.find_average(array)
+            return array
+        
         
     @staticmethod
     def CrossEntropyLoss(input_values):
@@ -444,6 +451,7 @@ class NeuralNetwork(Layer, CostFunctions, AdditionalFunctions,  Settings, Activa
         self.layers = None
         self.activation_layers = None
         self.hidden_layer_neurons = 0 
+        
         #self.review = None #[perLayer[weights, biases],[accuracy, settings, statistics]] WORK ON!!
         self.review = None #[perLayer[weights, biases], [accuracy]] WORK ON!!
         
@@ -494,13 +502,14 @@ class NeuralNetwork(Layer, CostFunctions, AdditionalFunctions,  Settings, Activa
         self.set_output_values(Y_data)
         for example in X_data:
             output_data = self.forward_propagation(example)
-            output_data = output_data.append(self.MeanSquaredError(output_data[-1], Y_data))
-        
+            self.cost_of_examples = np.append(self.cost_of_examples, self.MeanSquaredError(output_data[-1], Y_data))
+        self.EvalueatingCost()
+
     def evaluate(self, X_data, Y_data):
         # [[weights, bias], settinggs, ]
         pass
 
-    def predict(self, X_data):
+    def predict(self, X_data): #PLEASE JUST CHECK FOR BUGS
         """
         PURPOSE
         ------
@@ -541,7 +550,6 @@ class linearRegression(Input, Output):
     def __init__(self):
         self.slopes = None #[[m1, b1], ...]
 
-    
     @staticmethod
     def sumlist(data):
         sum_value = 0
@@ -584,8 +592,7 @@ class linearRegression(Input, Output):
                     array = np.append(array, [dataX[:, value]])
             print(array)
     
-
-def LinearRegression(dataX, dataY, learningRate):
+class LinearRegression():
     """
     PURPOSE
     ------
@@ -595,20 +602,52 @@ def LinearRegression(dataX, dataY, learningRate):
     --------
     >>> model = LinearRegression()
     >>> model.fit(X_train, Y_train)
-    >>> model.evaluate
+    >>> model.evaluate(X_test, Y_test)
     >>> model.predict(X_predict)
     >>> weights_biases = model.save_model()
     """
+    def __init__(self):
+        self.slope = np.array([1.0, 0.0], dtype=np.float64)
+        self.listOfSquaredResiduals = np.empty((0,))
+        
+    def calculateSquaredResidual(self, dataX, dataY):
+        residual = np.sum((dataY - (self.slope[0] * dataX + self.slope[1]))**2)
+        return residual
+    
+    def fit(self, dataX, dataY, learningRate, NUM_ITERATION = 1000):
+        squaredResidual = float('inf')
+        iteration = 0
+
+        while squaredResidual > 0.0001 and iteration < NUM_ITERATION:
+            
+            predictions = self.slope[0] * dataX + self.slope[1]
+            intercept_gradient = -2 * np.sum(dataY - predictions)
+            slope_gradient = -2 * np.sum((dataY - predictions) * dataX)
+
+            self.slope[1] -= learningRate * intercept_gradient
+            self.slope[0] -= learningRate * slope_gradient
+
+            squaredResidual = self.calculateSquaredResidual(dataX, dataY)
+            self.listOfSquaredResiduals = np.append(self.listOfSquaredResiduals, squaredResidual)
+            iteration += 1
+
+    def evaluate(self, dataX, dataY):
+        predictions = self.slope[0] * dataX + self.slope[1]
+        return self.calculateSquaredResidual(predictions, dataY)
+    
+    def predict(self, dataX):
+        return self.slope[0] * dataX + self.slope[1]
+        
+
+
+"""
+def LinearRegression(dataX, dataY, learningRate):
+
     listOfSquaredResiduals = []
     squaredResidual = float('inf')
     slope = 1.0
     intercept = 0.0
-    NUM_ITERATION = 1000
-    iteration = 0
-
-    def calculateSquaredResidual(dataX, dataY, slope, intercept):
-        residual = np.sum((dataY - (slope * dataX + intercept))**2)
-        return residual
+    
 
     while squaredResidual > 0.0001 and iteration < NUM_ITERATION:
         # Calculate gradients
@@ -626,7 +665,7 @@ def LinearRegression(dataX, dataY, learningRate):
         
         iteration += 1
     
-    return slope, intercept, listOfSquaredResiduals
+    return slope, intercept, listOfSquaredResiduals"""
 """
 # Sample data
 dataX = np.array([1, 2, 3, 4, 5])

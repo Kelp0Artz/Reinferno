@@ -12,7 +12,7 @@ print(dataX.shape)
 slopes =[0.42307273, 0.47859815]
 dataY = []
 
-#dataZ = [[1,1],[1,1]]
+#dataZ = [[1,1],[1,1]]3
 #dataX = [[0,0],[0,0]]
 
 for a in dataX:
@@ -61,8 +61,12 @@ X_test = X_test.reshape(X_test.shape[0], -1)
 
 # X_train[num_row, num_column]
 
+k = np.arange(10 , 50, 1)
+l = k*2
 
-model = NeuralNetwork()
+lr = LinearRegression()
+lr.fit(k,l, 0.01, 1000)
+"""model = NeuralNetwork()
 model.add(Layer.create_layer(model, 2, input_shape = 784, activation="sigmoid")) 
 model.add(Layer.create_layer(model, 8, activation="sigmoid"))
 model.add(Layer.create_layer(model, 2, activation="softmax"))
@@ -70,4 +74,4 @@ model.add(Layer.create_layer(model, 2, activation="softmax"))
 print(model.forward_propagation(X_train[0]))
 #print(model.activation_layers)
 #print(model.fit(X_train[0:10], Y_train, 1))
-#print(Activations.Sigmoid(1.245435))
+#print(Activations.Sigmoid(1.245435))"""

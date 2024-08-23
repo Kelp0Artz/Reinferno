@@ -1,4 +1,6 @@
 venv
-test.py
+backend\func\test.py
 backend\main.py
 backend\func\DataPrep.py
+backend\func\Deichno\pages\donationPage
+backend\func\Deichno\pages\settingsPage
